@@ -1,5 +1,4 @@
-# BrilliantMatesGame
-# BrilliantMates
+# Brilliant Mates Game
 
 ## Brilliant Mates is a two person chess game where players are able to play and keep track of moves, undo and flip board, as well as the abilities to castle and use en passant.
 
