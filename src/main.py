@@ -109,7 +109,6 @@ class CurrentPosition():
     output = []
     for x,r in enumerate(self.position):
       for y,c in enumerate(r):
-        print(c)
         sq = (x,y)
         if self.whiteToMove == True and c.islower():
           output.append(self.get_legal_moves(sq))
@@ -122,7 +121,6 @@ class CurrentPosition():
     puzzles = conn.execute('SELECT * FROM Puzzles WHERE difficulty = ?',str(difficulty)).fetchall()
     if len(puzzles) > 0:
       output = random.choice(puzzles)
-      #print(output)
       return output[2]
     return None
   def load_position(self,fen):
@@ -135,19 +133,16 @@ class CurrentPosition():
     if fen[2] == "-":
       self.whiteCastlePossible = False
       self.blackCastlePossible = False
-    #print(fen)
     row_count = 0
     col_count = 0
     self.notation = []
     self.pgn = []
     for f in fen[0]:
       if row_count > 7 or col_count > 7:
-        #print('end')
         return
       elif f.isnumeric():
         space_counter = int(f)
         while space_counter > 0:
-          #print('space')
           self.position[row_count][col_count] = " "
           col_count += 1
           if col_count > 7:
@@ -160,19 +155,15 @@ class CurrentPosition():
         if col_count > 7:
           row_count += 1
           col_count = 0
-        #print('piece placed',f)
       elif f == 'b':
         self.whiteToMove = False
-        #print('color change')
       elif f == 'w':
         self.whiteToMove = True
-        #print('color change')
       else:
         print('nothing')
     gameStatus = "GAME"
 
   def save_position(self): # current position in game to fen format in database
-    #print("positions saving")
     self.saveCounter += 1
     output = ""
     space_counter = 0
@@ -195,36 +186,28 @@ class CurrentPosition():
       output += "w"
     else: 
       output += "b"
-    #print(output)
     date1 = date.today()
     df = date1.strftime("%m%d%y")
     conn.execute("INSERT INTO Positions VALUES (?,?,?)", ("Position " + str(self.saveCounter),df, output))
     fens.commit()
-  def make_move(self,move):
-    #print(move)
-    
+  def make_move(self,move):  
     if move.piece1 != ' ' and (move.piece1 != move.piece2) and move.piece2.upper() != 'K':
       # en passant taken as white
-
       if (move.piece1 == 'P' and self.whiteEnPassantLeft == True and move.Row1 - move.Row2 == 1 and 
       move.Col1 - move.Col2 == 1 and self.position[move.Row2][move.Col2] == ' '):
         self.position[move.Row2+1][move.Col2] = ' '
-        #print('en passant taken',move.Row2,move.Col2)
 
       if (move.piece1 == 'P' and self.whiteEnPassantRight == True and move.Row1 - move.Row2 == 1 and
        move.Col1 - move.Col2 == -1 and self.position[move.Row2][move.Col2] == ' '):
         self.position[move.Row2+1][move.Col2] = ' '
-        #print('en passant taken',move.Row2,move.Col2)
 
       if (move.piece1 == 'p' and self.blackEnPassantLeft == True and move.Row1 - move.Row2 == -1 and
        move.Col1 - move.Col2 == 1 and self.position[move.Row2][move.Col2] == ' '):
         self.position[move.Row2-1][move.Col2] = ' '
-        #print('en passant taken',move.Row2,move.Col2)
 
       if (move.piece1 == 'p' and self.blackEnPassantRight == True and move.Row1 - move.Row2 == -1 and
        move.Col1 - move.Col2 == -1 and self.position[move.Row2][move.Col2] == ' '):
         self.position[move.Row2-1][move.Col2] = ' '
-        #print('en passant taken',move.Row2,move.Col2)
 
       self.position[move.Row1][move.Col1] = ' '
       self.position[move.Row2][move.Col2] = move.piece1
@@ -244,34 +227,24 @@ class CurrentPosition():
         self.position[move.Row2][move.Col1-1] = temp
       #en passant as black activation
       if move.piece1 == 'p' and abs(move.Row1 - move.Row2) == 2:
-        ##print(self.position[move.Row2][move.Col2-1]+' hi')
         if move.Col2 < 7:
           if self.position[move.Row2][move.Col2+1] == 'P':
             self.whiteEnPassantLeft = True
             self.enPassantSquare = [move.Row2,move.Col2+1]
-            #print(move.Row1,move.Row2)
-            #print('left active')
         if move.Col2 > 0:
           if self.position[move.Row2][move.Col2-1] == 'P':
             self.whiteEnPassantRight = True
             self.enPassantSquare = [move.Row2,move.Col2-1]
-            #print(move.Row1,move.Row2)
-            #print('right active')
       # en passant as white activation
       if move.piece1 == 'P' and abs(move.Row1 - move.Row2) == 2:
-        #print(self.position[move.Row2][move.Col2-1]+' hi')
         if move.Col2 < 7:
           if self.position[move.Row2][move.Col2+1] == 'p':
             self.blackEnPassantLeft = True
             self.enPassantSquare = [move.Row2,move.Col2+1]
-            #print(move.Row1,move.Row2)
-            #print('left active')
         if move.Col2 > 0:
           if self.position[move.Row2][move.Col2-1] == 'p':
             self.blackEnPassantRight = True
             self.enPassantSquare = [move.Row2,move.Col2-1]
-            #print(move.Row1,move.Row2)
-            #print('right active')
       if move.piece1.isupper():
         self.whiteEnPassantLeft = False
         self.whiteEnPassantRight = False
@@ -279,10 +252,7 @@ class CurrentPosition():
         self.blackEnPassantLeft = False
         self.blackEnPassantRight = False
       self.whiteToMove = not self.whiteToMove
-      dan_squares = self.get_danger_squares()
-      print('dan_squares: ',dan_squares)
       self.notation.append(move)
-      
       # taking with en passant as white
       # pawn promotion
       if move.piece1.upper() == 'P' and (move.Row2 == 0 or move.Row2 == 7):
@@ -294,7 +264,6 @@ class CurrentPosition():
   def undo_last_move(self):
     if len(self.notation)>0 and len(self.pgn) > 0:
       # undo castle
-      #print(self.notation[-1].Col2 - self.notation[-1].Col1)
       if self.notation[-1].piece1[0].upper() == 'K':
         tempRook = 'r'
         if self.notation[-1].piece1[0].isupper():
@@ -309,7 +278,6 @@ class CurrentPosition():
           self.whiteCastlePossible = True
         elif (self.pgn[-1] == '0-0' or self.pgn[-1] == '0-0-0'):
           self.blackCastlePossible = True
-      #print(self.notation)
       self.position[self.notation[-1].Row1][self.notation[-1].Col1] = self.notation[-1].piece1
       self.position[self.notation[-1].Row2][self.notation[-1].Col2] = self.notation[-1].piece2
       self.notation.pop()
@@ -371,7 +339,6 @@ class CurrentPosition():
   def rook(self,piece,isWhite,output):
     
     for i in range((piece[0]-1), -1, -1):
-      print(self.position[i][piece[1]].lower())
       if self.position[i][piece[1]] == ' ':
         move = (i,piece[1])
         output.append(move)
@@ -489,19 +456,14 @@ class CurrentPosition():
       move = (piece[0],piece[1]-2)
       output.append(move)
   def get_legal_moves(self,piece):
-    print(piece)
     multiplier = 1
-    #print('square is ',self.enPassantSquare)
     if self.blackPromotion == True or self.whitePromotion == True:
       return []
     output = []
-    print("after",piece)
     self.selected_piece = self.position[piece[0]][piece[1]]
     if self.flipboard == 2:
       self.selected_piece = self.position[flipToReg[piece[0]]][flipToReg[piece[1]]]
       multiplier = -1
-    print(self.selected_piece)
-    print('yes',multiplier)
     if self.selected_piece.upper() == 'P':
       if self.selected_piece.isupper() and self.whiteToMove == True:
         if 0 < piece[0] < 7:
@@ -537,8 +499,7 @@ class CurrentPosition():
           if self.position[piece[0]+(1*multiplier)][piece[1]] == ' ':
             move = (piece[0]+(1*multiplier),piece[1])
             output.append(move)
-            # move up twice
-            #print('checking', piece[0], self.position[piece[0]+(2*multiplier)][piece[1]]          
+            # move up twice        
             if piece[0] == 1 or piece[0] == 6:    
               if self.position[piece[0]+(2*multiplier)][piece[1]] == ' ':
                 move = (piece[0]+(2*multiplier),piece[1])
@@ -595,7 +556,6 @@ class CurrentPosition():
         self.knight(piece,True,output)
       if self.selected_piece.islower() and self.whiteToMove == False:
         self.knight(piece,False,output)
-    print(output)
     return output
 
 
@@ -753,12 +713,8 @@ def main():
           cP.save_position()
         elif padding*8 <= mouse[0] <= padding*8+50 and padding+(sqSize*9) <= mouse[1] <= padding+(sqSize*9)+sqSize:
           gameStatus = 'MENU'
-        print(mouse[0],mouse[1])
         row = (mouse[0]-padding)//sqSize
         col = (mouse[1]-padding)//sqSize
-        #if cP.flipboard == 2:
-        #  row = 7 - row
-         # col = 7 - col 
         if 0<= row <= 7 and 0 <= col <= 7 and gameStatus == 'GAME':
           if squareSelected == (col,row):
             squareSelected = ()
@@ -770,7 +726,6 @@ def main():
           if len(clicks) == 1:
             possible_moves = cP.get_legal_moves(clicks[0])
           if len(clicks) == 2:
-            #print(clicks[1])
             if clicks[1] in possible_moves:
               move = Move(clicks[0],clicks[1],cP.position,cP.flipboard)
               cP.make_move(move)
@@ -985,7 +940,6 @@ def main():
           gameStatus = 'MENU'   
     if gameStatus == "LOAD":
       all_positions = cP.get_positions().fetchall()
-      #print(all_positions)
       
       menu = pygame_menu.Menu('Load Position', WIDTH, HEIGHT, theme=pygame_menu.themes.THEME_DARK)
       pygame_menu.widgets.MENUBAR_STYLE_SIMPLE
@@ -993,17 +947,7 @@ def main():
       menu.add.button('Load Positon')
       menu.add.button('Back To Menu',change_status(gameStatus,"MENU"))
       menu.mainloop(screen)
-      '''
-      if 50 <= mouse[0] <= 220 and 400 <= mouse[1] <= 440: 
-        read_me = buttonfont.render("game", True, DARK)
-        if click[0] == 1:
-          gameStatus = 'GAME'
-          ##print(all_positions[1][2])
-          #cP.load_position(all_positions[1][2])   
-      else: 
-        read_me = buttonfont.render("game", True, LIGHT)
-      screen.blit(read_me,(50,400))
-      '''
+
     if gameStatus == "PUZZLES":
       puzzle_title = titlefont.render("Puzzles",True, DARK)
       if 50 <= mouse[0] <= 600 and 200 <= mouse[1] <= 240: 
@@ -1039,12 +983,7 @@ def main():
         hard = buttonfont.render("Solve Random Hard Puzzle", True, LIGHT)
       screen.blit(hard,(50,400))  
       screen.blit(puzzle_title,(250,50))
-      #picked_puzzle = 
-      #for i,v in enumerate(all_positions):
-      #  txt = pfont.render(v[0]+"   "+v[1]+"   "+v[2], True, LIGHT)
-      #  screen.blit(txt,(200,(i*50)+padding))
-      #  if i == 1:
-      #    load_text = v[2]
+
     pygame.display.flip()
 if __name__ == "__main__":
   main()      
