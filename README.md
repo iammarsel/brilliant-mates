@@ -3,9 +3,9 @@
 
 ## Brilliant Mates is a two person chess game where players are able to play and keep track of moves, undo and flip board, as well as the abilities to castle and use en passant.
 
-### In the future, Brilliant Mates will include a puzzle system, importing of pgns, and a chess engine.
+### For version 2, Brilliant Mates now includes a puzzle system, importing of positions and puzzles using FEN notation, and saving current position on the board.
 
-### As of now the features include the ability to undo moves and flip board.
+Both versions include the ability to undo moves and flip board.
 
 ### Required to run: python3, pygame
 
