@@ -602,8 +602,8 @@ class Move(): # (1,1) = (8,a)
 cP = CurrentPosition()
 
 # colors 
-LIGHT = (145, 134, 105)
-DARK = (92, 80, 48)
+LIGHT = (202,205, 207)
+DARK = (33, 101, 166)
 BACKGROUND = (31, 31, 31)
 HIGHLIGHT = pygame.Color(255, 232, 84)
 extraIMAGES = {}
@@ -671,7 +671,7 @@ def main():
   screen.fill((BACKGROUND))
   squareSelected = ()
   moveBox = ""
-  possible_moves = []
+  possible_moves = ()
   clicks = []
   running = True
   gameStatus = 'MENU'
@@ -703,7 +703,7 @@ def main():
             cP.flipboard = 1
         elif padding*2.6 <= mouse[0] <= padding*2.6+50 and padding+(sqSize*9) <= mouse[1] <= padding+(sqSize*9)+sqSize: 
           cP.undo_last_move()
-          possible_moves = []
+          possible_moves = ()
           squareSelected = ()
           clicks = []
         elif padding*4.2 <= mouse[0] <= padding*4.2+50 and padding+(sqSize*9) <= mouse[1] <= padding+(sqSize*9)+sqSize: 
@@ -719,7 +719,7 @@ def main():
           if squareSelected == (col,row):
             squareSelected = ()
             clicks = []
-            possible_moves = []
+            possible_moves = ()
           else:
             squareSelected = (col,row)
             clicks.append(squareSelected)
