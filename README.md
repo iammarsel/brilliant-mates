@@ -83,14 +83,10 @@ There is also a new game mode in the works where there will be a new piece and u
 
 ### Built With
 
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+* Python
+* SQLite
+* pygame
+* tkinter
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
