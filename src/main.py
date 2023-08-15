@@ -1,7 +1,5 @@
 import pygame
 import pygame_menu
-import sys
-import os
 from pygame.locals import *
 from datetime import date
 import sqlite3
@@ -10,10 +8,7 @@ pygame.init()
 pygame.font.init()
 
 WIDTH,HEIGHT = 800,600
-sqSize = 50
-padding = 50
-load_text = ""
-letters = ['a','b','c','d','e','f','g','h']
+sqSize, padding = 50,50
 titlefont = pygame.font.SysFont(None,100)
 buttonfont = pygame.font.SysFont(None, 60)
 pfont = pygame.font.SysFont(None, 20)
@@ -21,15 +16,6 @@ screen = pygame.display.set_mode((WIDTH,HEIGHT))
 programIcon = pygame.image.load('images/bK.png')
 pygame.display.set_caption('Brilliant Mates')
 pygame.display.set_icon(programIcon)
-
-ranksToRows = {"1":7,"2":6,"3":5,"4":4,"5":3,"6":2,"7":1,"8":0}
- 
-rowsToRanks = {v: k for k,v in ranksToRows.items()}
-filesToCols = {"a":0,"b":1,"c":2,"d":3,"e":4,"f":5,"g":6,"h":7}
-colsToFiles = {v: k for k,v in filesToCols.items()}
-
-flipToReg = {7:0,6:1,5:2,4:3,3:4,2:5,1:6,0:7}
-regToFiles = {v: k for k,v in flipToReg.items()}
 fens = sqlite3.connect('saves.db')
 conn = fens.cursor()
 conn.execute("""CREATE TABLE IF NOT EXISTS Puzzles (
@@ -462,7 +448,7 @@ class CurrentPosition():
     output = []
     self.selected_piece = self.position[piece[0]][piece[1]]
     if self.flipboard == 2:
-      self.selected_piece = self.position[flipToReg[piece[0]]][flipToReg[piece[1]]]
+      self.selected_piece = self.position[7-piece[0]][7-piece[1]]
       multiplier = -1
     if self.selected_piece.upper() == 'P':
       if self.selected_piece.isupper() and self.whiteToMove == True:
@@ -560,7 +546,7 @@ class CurrentPosition():
 
 
 
-class Move(): # (1,1) = (8,a)
+class Move():
   
 
   def __init__(self,Sq1,Sq2,board,fS):
@@ -596,13 +582,13 @@ class Move(): # (1,1) = (8,a)
     return output + takes + self.getRankFile(self.Row2,self.Col2)
 
   def getRankFile(self,r,c):
-    return colsToFiles[c] + rowsToRanks[r]
+    return chr(c+97) + str(8-int(r))
   def getFlip(self,n):
-    return regToFiles[n]
+    return 7-n
 cP = CurrentPosition()
 
 # colors 
-LIGHT = (202,205, 207)
+LIGHT = (150,150,150)
 DARK = (33, 101, 166)
 BACKGROUND = (31, 31, 31)
 HIGHLIGHT = pygame.Color(255, 232, 84)
@@ -610,10 +596,6 @@ extraIMAGES = {}
 # chess pieces images
 IMAGES = {}
 pieces = ['K','Q','B','N','P','R']
-def flip_move(num):
-  flipToReg = {7:0,6:1,5:2,4:3,3:4,2:5,1:6,0:7}
-  regToFiles = {v: k for k,v in flipToReg.items()}
-  num = flipToReg[num]
 def load_images():
   pieceSize = sqSize-3
   extraIMAGES[0] = pygame.transform.scale(pygame.image.load('images/flip.png').convert_alpha(),(pieceSize,pieceSize))
@@ -631,7 +613,7 @@ def show_text(text,x,y,size):
   screen.blit(text,(x,y))
 
 def change_status(gamestatus,text):
-    gameStatus = text
+    gamestatus = text
 
 def draw_board(currentP,flipboard):
     colorSwitch = DARK
@@ -642,10 +624,10 @@ def draw_board(currentP,flipboard):
         colorSwitch = DARK
       if flipboard == 1:
         a = show_text(str(i+1),padding*0.65,365-(sqSize*i)+padding,sqSize-20)
-        b = show_text(letters[i],(sqSize*1.4)+(sqSize*i),9*sqSize,sqSize-20)
+        b = show_text(chr(i+97),(sqSize*1.4)+(sqSize*i),9*sqSize,sqSize-20)
       elif flipboard == 2:
         a = show_text(str(i+1),padding*0.65,(sqSize*i)+padding+15,sqSize-20)
-        b = show_text(letters[-i-1],(sqSize*1.4)+(sqSize*i),9*sqSize,sqSize-20)
+        b = show_text(chr(104-i),(sqSize*1.4)+(sqSize*i),9*sqSize,sqSize-20)
       for j in range(8):
         pygame.draw.rect(screen,colorSwitch,((padding+sqSize*j),(padding+sqSize*i),sqSize,sqSize))
         if colorSwitch == DARK:
@@ -877,8 +859,6 @@ def main():
           ]
           cP.pgn = []
           cP.notation = []
-         
-
       else: 
         play = buttonfont.render("Play Game", True, LIGHT)
 
@@ -886,8 +866,6 @@ def main():
         load = buttonfont.render("Load Position", True, DARK)
         if click[0] == 1:
           gameStatus = "LOAD"
-         
-
       else: 
         load = buttonfont.render("Load Position", True, LIGHT)
         
@@ -939,8 +917,8 @@ def main():
         if click[0] == 1:
           gameStatus = 'MENU'   
     if gameStatus == "LOAD":
+      # not working
       all_positions = cP.get_positions().fetchall()
-      
       menu = pygame_menu.Menu('Load Position', WIDTH, HEIGHT, theme=pygame_menu.themes.THEME_DARK)
       pygame_menu.widgets.MENUBAR_STYLE_SIMPLE
       menu.add.text_input('FEN Notation :', default='')
